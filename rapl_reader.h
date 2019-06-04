@@ -78,6 +78,7 @@ public:
 		for(int i = 0; i < total_packages; i++) {	
 			rapl_info_perpackage(i);
 		}
+		std::cout << "total_packages: " << total_packages << "\n";
 	}
 
 	void runRAPL(){

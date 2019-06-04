@@ -42,10 +42,10 @@ def device_name(outfile):
 	device=instr.ask("*IDN?")
 	outfile.write('{:.4f}'.format(time.time())+"\n")
 
-timestamp = sys.argv[1]
+prefix = sys.argv[1]
 max_count = int(sys.argv[2])
 period = int(sys.argv[3])
-outfile = open("power_"+timestamp+".txt", "w")
+outfile = open(prefix+".txt", "w")
 instr=vxi11.Instrument("172.19.222.92","gpib0,12")
 
 ##Handle the USB coonection can have e

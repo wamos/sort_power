@@ -14,38 +14,45 @@
 // sh run.sh 20 8 cpu
 
 int main(int argc, char** argv){
-  int duration = atoi(argv[1]);	
+  std::string namestr(argv[1]);
+  int duration = atoi(argv[2]);	
   struct timespec ts1,ts2;
   uint64_t read_start, read_end, timestamp;
   std::ofstream outfile;
   RAPLReader rapl_reader(0,0);
 
   timestamp = rapl_reader.getNanoSecond(ts1)/1000000000;
-  outfile.open("/tmp/rapl_"+std::to_string(timestamp)+".txt");
+  outfile.open("/tmp/"+namestr+".txt");
   rapl_reader.setupRAPL();
   //read_start = rapl_reader.getNanoSecond(ts1);
   std::time_t t = std::time(0);
   std::cout << "start:" << t << "\n";
   double pre_pkg0 = 0;
   double pre_ram0 = 0;	
+  double pre_pkg1 = 0;
+  double pre_ram1 = 0;	
   for(int i = 0; i <= duration; i++){
-    //std::cout << std::time(0) << "\n";
-    //timestamp = rapl_reader.getNanoSecond(ts1)/1000000000;
+    std::cout << std::time(0) << "\n";
     rapl_reader.runRAPL();
     auto pkg0 = rapl_reader.getEnergy(0,i);
+	auto pkg1 = rapl_reader.getEnergy(1,i);
     if(i ==0){
       pre_pkg0 = std::get<0>(pkg0);
-	    pre_ram0 = std::get<2>(pkg0);
+      pre_pkg1 = std::get<0>(pkg1);		
+	  pre_ram0 = std::get<2>(pkg0);
+	  pre_ram1 = std::get<2>(pkg1);	
       std::this_thread::sleep_for(std::chrono::seconds(1));
       timestamp+=1;
       continue;
     }
     else{
-      printf("Core-0 %f\n", std::get<0>(pkg0) - pre_pkg0);
+      //printf("Core-0 %f\n", std::get<0>(pkg0) - pre_pkg0);
       //std::cout << +(timestamp) << ","<< std::get<0>(pkg0) - pre_pkg0 << "," << std::get<2>(pkg0) - pre_ram0 << "\n";
-      outfile << +(timestamp) << ","<< std::get<0>(pkg0) - pre_pkg0 << "," << std::get<2>(pkg0) - pre_ram0 << "\n";
+      outfile << +(timestamp) << ","<< std::get<0>(pkg0) - pre_pkg0 << "," << std::get<2>(pkg0) - pre_ram0 << "," << std::get<0>(pkg1) - pre_pkg1 << "," << std::get<2>(pkg1) - pre_ram1 <<"\n";
       pre_pkg0 = std::get<0>(pkg0);
-	    pre_ram0 = std::get<2>(pkg0);
+	  pre_pkg1 = std::get<0>(pkg1);
+	  pre_ram0 = std::get<2>(pkg0);
+	  pre_ram1 = std::get<2>(pkg1);
     }
     //std::this_thread::sleep_for(std::chrono::milliseconds(1));
     std::this_thread::sleep_for(std::chrono::seconds(1));
